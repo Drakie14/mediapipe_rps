@@ -51,7 +51,9 @@ Thư viện được cài: `mediapipe`, `opencv-python`, `numpy`, `pillow`.
 
 ## Bước 3 — Chạy game
 
-**Windows:**
+**Windows (cách dễ nhất):** mở thư mục game và **nhấp đúp `run_windows.bat`**. Lần đầu file sẽ tự tạo môi trường và cài thư viện (mất vài phút, cần Internet); các lần sau mở ngay.
+
+**Windows (PowerShell):**
 
 ```powershell
 .venv\Scripts\python.exe main.py
