@@ -1,39 +1,72 @@
 # Oẳn Tù Tì bằng cử chỉ tay — MediaPipe Hand
 
-Ứng dụng chơi Oẳn Tù Tì (Rock – Paper – Scissors) với máy tính. Người chơi ra **Búa / Bao / Kéo** bằng tay thật trước camera, chương trình dùng **MediaPipe Hand Landmarker** lấy vị trí các khớp tay, rồi dùng thuật toán tự xây dựng để nhận diện cử chỉ và phân định thắng thua. Ai thắng 3 ván trước thì thắng trận.
+Chơi Oẳn Tù Tì (Búa – Bao – Kéo) với máy tính bằng **tay thật trước webcam**. Chương trình dùng **MediaPipe Hand Landmarker** lấy vị trí các khớp tay, rồi dùng thuật toán tự xây dựng để nhận diện cử chỉ và phân định thắng thua.
 
 ```
 Camera → MediaPipe Hand → 21 landmark → Thuật toán nhận diện ngón tay → Cử chỉ → Logic game → Màn hình
 ```
 
-Video demo: _(dán link vào đây)_
+## Cần chuẩn bị
 
-## Cài đặt
+- Máy tính **Windows, macOS hoặc Linux** có **webcam**.
+- **Python 3.9 – 3.13** (khuyên dùng 3.12). Tải tại <https://www.python.org/downloads/>.
+  - Trên Windows, khi cài nhớ tick ô **"Add python.exe to PATH"**.
+  - Kiểm tra đã cài: mở Terminal / PowerShell và gõ `python --version` (macOS/Linux dùng `python3 --version`).
+- Kết nối Internet cho lần chạy đầu (để tải thư viện và model ~7.8 MB).
 
-Yêu cầu Python 3.9 trở lên và một webcam.
+## Bước 1 — Tải game về
 
-```bash
-pip install -r requirements.txt
-```
-
-Thư viện sử dụng: `mediapipe`, `opencv-python`, `numpy`, `pillow` (vẽ chữ tiếng Việt có dấu).
-
-## Chạy chương trình
+**Cách A: dùng Git**
 
 ```bash
-python main.py        # dùng camera mặc định (số 0)
-python main.py 1      # dùng camera khác
+git clone https://github.com/Drakie14/mediapipe_rps.git
+cd mediapipe_rps
 ```
 
-Lần chạy đầu, chương trình tự tải model `hand_landmarker.task` (~7.8 MB) vào thư mục `models/`.
+**Cách B: không cần Git**
 
-Chạy kiểm thử thuật toán (không cần camera):
+1. Vào <https://github.com/Drakie14/mediapipe_rps>, bấm nút xanh **Code → Download ZIP**.
+2. Giải nén, rồi mở Terminal / PowerShell **bên trong thư mục vừa giải nén**
+   (Windows: mở thư mục, gõ `powershell` vào thanh địa chỉ rồi Enter).
+
+## Bước 2 — Cài thư viện (chỉ làm một lần)
+
+Tạo môi trường ảo riêng cho game để không ảnh hưởng các chương trình Python khác.
+
+**Windows (PowerShell):**
+
+```powershell
+python -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
+
+**macOS / Linux:**
 
 ```bash
-python test_logic.py
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt
 ```
 
-## Hướng dẫn chơi
+Thư viện được cài: `mediapipe`, `opencv-python`, `numpy`, `pillow`.
+
+## Bước 3 — Chạy game
+
+**Windows:**
+
+```powershell
+.venv\Scripts\python.exe main.py
+```
+
+**macOS / Linux:**
+
+```bash
+.venv/bin/python main.py
+```
+
+- Lần chạy đầu, game tự tải model `hand_landmarker.task` vào thư mục `models/`.
+- Máy có nhiều camera: thêm số thứ tự camera vào cuối lệnh, ví dụ `main.py 1`.
+
+## Cách chơi
 
 | Phím | Chức năng |
 |---|---|
@@ -44,99 +77,61 @@ python test_logic.py
 | `Q` / `ESC` | Thoát |
 
 1. Nhấn `SPACE`, màn hình đếm ngược **3 – 2 – 1** ("Oẳn… tù… tì!").
-2. Khi hiện **"RA TAY!"**, đưa tay ra trước camera:
+2. Khi hiện **"RA TAY!"**, đưa tay ra trước camera, lòng bàn tay hướng về camera:
    - **Búa**: nắm tay lại
    - **Bao**: xòe cả bàn tay
    - **Kéo**: duỗi ngón trỏ và ngón giữa, gập ngón áp út và ngón út
-3. Máy ra tay ngẫu nhiên, màn hình hiện kết quả ván. Ván tiếp theo tự bắt đầu.
-4. Ai thắng đủ số ván đã chọn (mặc định 3) trước thì thắng trận. Cuối trận có bảng thống kê; kỷ lục chuỗi thắng liên tiếp được lưu vào `records.json`.
+3. Màn hình hiện kết quả ván, ván tiếp theo tự bắt đầu.
+4. Ai thắng đủ số ván đã chọn (mặc định 3) trước thì thắng trận. Cuối trận có bảng thống kê; kỷ lục chuỗi thắng được lưu vào `records.json`.
 
-Góc dưới màn hình hiển thị trạng thái từng ngón (DUỖI / co) và cử chỉ đang nhận diện, để thấy rõ dữ liệu từ camera được xử lý thế nào.
+Góc dưới màn hình hiển thị trạng thái từng ngón (duỗi / co) và cử chỉ đang nhận diện.
+
+**Mẹo:** ngồi chỗ đủ sáng, để cả bàn tay nằm trong khung hình.
+
+## Gặp lỗi?
+
+| Hiện tượng | Cách xử lý |
+|---|---|
+| `python` không được nhận ra (Windows) | Cài lại Python và tick **"Add python.exe to PATH"**, rồi mở PowerShell mới. |
+| Báo `Khong mo duoc camera 0` | Đóng các app đang dùng camera (Zoom, Meet, Camera…). Thử `main.py 1`. Kiểm tra quyền camera: Windows *Settings → Privacy & security → Camera*; macOS *System Settings → Privacy & Security → Camera* (cho phép Terminal). |
+| Chạy trong **WSL** không thấy camera | WSL không truy cập được webcam. Hãy chạy bằng PowerShell trên Windows theo hướng dẫn ở trên. |
+| `pip install` báo không tìm thấy bản `mediapipe` phù hợp | Phiên bản Python quá mới hoặc quá cũ. Cài Python 3.12 rồi làm lại Bước 2. |
+| PowerShell chặn script khi chạy `activate` | Không cần activate: dùng trực tiếp `.venv\Scripts\python.exe` như các lệnh ở trên. |
+
+Chạy kiểm thử thuật toán (không cần camera):
+
+```bash
+python test_logic.py
+```
 
 ## Cấu trúc source code
 
 | File | Vai trò |
 |---|---|
 | `hand_tracker.py` | Gọi MediaPipe: nhận frame camera, trả về 21 landmark của bàn tay |
-| `gesture.py` | **Thuật toán tự xây dựng**: landmark → trạng thái ngón → cử chỉ, và bộ lọc chống nhiễu |
-| `game.py` | **Logic game tự xây dựng**: máy trạng thái, bỏ phiếu cử chỉ, phân định thắng thua, tính điểm |
+| `gesture.py` | Thuật toán: landmark → trạng thái ngón → cử chỉ, và bộ lọc chống nhiễu |
+| `game.py` | Logic game: máy trạng thái, bỏ phiếu cử chỉ, phân định thắng thua, tính điểm |
 | `main.py` | Vòng lặp camera, nối các bước lại và vẽ giao diện |
+| `ui.py`, `icons.py`, `sound.py` | Giao diện, biểu tượng và âm thanh |
 | `test_logic.py` | Kiểm thử thuật toán và logic game bằng dữ liệu giả lập |
 
-## Thuật toán
+## Thuật toán nhận diện cử chỉ
 
-### 1. Dữ liệu từ MediaPipe
-
-MediaPipe Hand Landmarker trả về 21 điểm (landmark) cho mỗi bàn tay, tọa độ `x, y` chuẩn hóa về [0, 1] theo kích thước ảnh:
-
-- `0`: cổ tay
-- Mỗi ngón có 4 điểm: MCP (gốc ngón), PIP (khớp giữa), DIP, TIP (đầu ngón).
-  Ngón trỏ: 5–8, ngón giữa: 9–12, ngón áp út: 13–16, ngón út: 17–20.
-
-### 2. Xác định ngón duỗi hay co (`finger_states`)
-
-Với mỗi ngón (trỏ, giữa, áp út, út):
+MediaPipe trả về 21 điểm cho mỗi bàn tay (`0` là cổ tay; mỗi ngón có 4 điểm từ gốc tới đầu ngón). Với mỗi ngón trỏ, giữa, áp út, út:
 
 ```
-ngón DUỖI  ⇔  khoảng_cách(TIP, cổ tay) > 1.1 × khoảng_cách(PIP, cổ tay)
+ngón DUỖI  ⇔  khoảng_cách(đầu ngón, cổ tay) > 1.1 × khoảng_cách(khớp giữa, cổ tay)
 ```
 
-- Khi ngón **duỗi**, đầu ngón nằm xa cổ tay hơn khớp giữa.
-- Khi ngón **co**, đầu ngón gập vào lòng bàn tay nên gần cổ tay hơn khớp giữa.
-- Dùng **khoảng cách** thay vì so sánh tọa độ `y` nên thuật toán vẫn đúng khi bàn tay nghiêng hoặc xoay ngang (có test `test_rotated_hand`).
-- Hệ số 1.1 là ngưỡng an toàn để ngón hơi cong không bị tính là duỗi.
-- **Bỏ qua ngón cái**: ba cử chỉ đều phân biệt được bằng 4 ngón còn lại, còn ngón cái hay bị nhận sai do nó chuyển động ngang.
-
-### 3. Phân loại cử chỉ (`classify`)
+Dùng khoảng cách thay vì tọa độ nên vẫn đúng khi bàn tay nghiêng. Ngón cái được bỏ qua vì hay bị nhận sai.
 
 | Trạng thái 4 ngón (trỏ, giữa, áp út, út) | Cử chỉ |
 |---|---|
-| Không ngón nào duỗi | Búa (ROCK) |
-| Cả 4 ngón duỗi | Bao (PAPER) |
-| Chỉ trỏ + giữa duỗi | Kéo (SCISSORS) |
+| Không ngón nào duỗi | Búa |
+| Cả 4 ngón duỗi | Bao |
+| Chỉ trỏ + giữa duỗi | Kéo |
 | Trường hợp khác | Không rõ → bỏ qua |
 
-### 4. Chống nhiễu (`GestureStabilizer`)
+Một cử chỉ chỉ được chấp nhận khi giữ nguyên **5 frame liên tiếp**; trong 0.8 giây "RA TAY!", cử chỉ xuất hiện nhiều nhất được tính là tay của người chơi. Không thấy tay thì ván đó không tính.
 
-Landmark rung nhẹ giữa các frame làm kết quả có thể nhảy liên tục. Một cử chỉ chỉ được chấp nhận khi nó **giữ nguyên trong 5 frame liên tiếp**; nếu mất tay thì bộ đệm bị xóa.
-
-### 5. Logic game (`game.py`) — máy trạng thái
-
-```
-IDLE ──SPACE──► COUNTDOWN ──3s──► CAPTURE ──0.8s──► RESULT ──2.5s──► COUNTDOWN (ván mới)
-                                                       │
-                                                       └── có người đạt 3 điểm ──► GAME_OVER
-```
-
-- **CAPTURE**: trong 0.8 giây sau khi đếm xong, ghi lại mọi cử chỉ đã ổn định. Cử chỉ của người chơi là cử chỉ **xuất hiện nhiều nhất** (bỏ phiếu đa số), để lỡ ra tay chậm hoặc có vài frame sai cũng không ảnh hưởng.
-- **Máy chọn ngẫu nhiên đúng lúc ra tay**, nên máy không "đọc" được tay người chơi trước.
-- Không thấy tay trong lúc CAPTURE thì ván đó **không tính**, chơi lại.
-
-### 6. Phân định thắng thua (`judge`)
-
-Đánh số Búa = 0, Bao = 1, Kéo = 2. Mỗi lựa chọn thắng lựa chọn đứng ngay trước nó theo vòng tròn (Bao > Búa, Kéo > Bao, Búa > Kéo), nên chỉ cần tính:
-
-```
-d = (người − máy) mod 3
-d = 0 → hòa,   d = 1 → người thắng,   d = 2 → máy thắng
-```
-
-Thắng một ván được 1 điểm, hòa không ai được điểm.
-
-## Kết quả kiểm thử
-
-- `test_logic.py`: kiểm tra phân loại 3 cử chỉ, bàn tay xoay 90°, luật thắng thua, bộ chống nhiễu, mô phỏng trọn một trận, và ván không thấy tay không được tính.
-- Chạy thuật toán trên ảnh mẫu của MediaPipe:
-
-| Ảnh | Trạng thái 4 ngón | Kết quả |
-|---|---|---|
-| Tay giơ chữ V (victory) | duỗi, duỗi, co, co | Kéo ✔ |
-| Bàn tay xòe | duỗi × 4 | Bao ✔ |
-| Nắm tay giơ ngón cái | co × 4 | Búa ✔ (bỏ qua ngón cái) |
-| Chỉ giơ ngón trỏ | duỗi, co, co, co | Không rõ ✔ |
-
-## Hạn chế và hướng phát triển
-
-- Nhận diện kém khi thiếu sáng hoặc bàn tay quay mu tay/cạnh tay về camera, vì các ngón che nhau.
-- Máy đang chọn hoàn toàn ngẫu nhiên. Có thể cho máy "học" thói quen người chơi (ví dụ đếm tần suất cử chỉ người chơi hay ra để chọn nước khắc chế).
-- Có thể thêm chế độ 2 người chơi (`num_hands=2`), âm thanh, hoặc lưu bảng xếp hạng.
+Luật thắng thua: đánh số Búa = 0, Bao = 1, Kéo = 2, tính `d = (người − máy) mod 3`: `0` hòa, `1` người thắng, `2` máy thắng.

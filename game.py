@@ -27,6 +27,9 @@ CAPTURE_TIME = 0.8     # khoang thoi gian ghi nhan cu chi sau khi dem xong
 RESULT_TIME = 2.5      # thoi gian hien ket qua moi van
 WIN_SCORE = 3          # mac dinh: ai thang 3 van truoc thi thang tran
 WIN_SCORE_OPTIONS = (1, 3, 5)  # nguoi choi chon o man hinh cho (phim 1/3/5)
+# Ti le ket qua moi van (nguoi thang, may thang, hoa): nghieng ve nguoi choi
+# cho vui, hoa it. Dat odds=None khi tao RPSGame de may ra ngau nhien that su.
+PLAYER_ODDS = (0.65, 0.25, 0.10)
 
 
 def judge(player, computer):
@@ -43,10 +46,11 @@ def judge(player, computer):
 
 
 class RPSGame:
-    def __init__(self, rng=None, win_score=WIN_SCORE):
-        # SystemRandom lay entropy tu he dieu hanh -> may ra tay ngau nhien that su
+    def __init__(self, rng=None, win_score=WIN_SCORE, odds=PLAYER_ODDS):
+        # SystemRandom lay entropy tu he dieu hanh
         self.rng = rng or random.SystemRandom()
         self.win_score = win_score
+        self.odds = odds
         # Chuoi thang lien tiep, giu qua nhieu tran: thua thi ve 0, hoa thi giu nguyen
         self.streak = 0
         self.reset()
@@ -110,12 +114,10 @@ class RPSGame:
                 self._start_round(now)
 
     def _finish_round(self, now):
-        # May chon NGAU NHIEN tai thoi diem ra tay -> khong the "doc" truoc
-        self.computer_move = self.rng.choice(CHOICES)
-
         if self.captured:
             # Bo phieu da so: cu chi xuat hien nhieu nhat trong cua so CAPTURE
             self.player_move = Counter(self.captured).most_common(1)[0][0]
+            self.computer_move = self._computer_choice(self.player_move)
             self.round_result = judge(self.player_move, self.computer_move)
             self.history.append((self.player_move, self.computer_move,
                                  self.round_result))
@@ -127,9 +129,20 @@ class RPSGame:
                 self.computer_score += 1
                 self.streak = 0
         else:
+            self.computer_move = self.rng.choice(CHOICES)
             # Khong nhan ra tay -> van khong tinh, choi lai
             self.round_no -= 1
         self._enter(RESULT, now)
+
+    def _computer_choice(self, player):
+        """May ra tay sau khi biet tay nguoi choi: boc ket qua theo self.odds
+        roi chon tay tuong ung. odds=None -> ngau nhien deu (1/3 moi tay)."""
+        if self.odds is None:
+            return self.rng.choice(CHOICES)
+        outcome = self.rng.choices((1, -1, 0), weights=self.odds)[0]
+        # judge: (nguoi - may) mod 3 = 1 -> nguoi thang, 2 -> may thang, 0 -> hoa
+        shift = {1: 1, -1: 2, 0: 0}[outcome]
+        return CHOICES[(CHOICES.index(player) - shift) % 3]
 
     def winner(self):
         if self.player_score >= self.win_score:

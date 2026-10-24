@@ -33,8 +33,12 @@ def ensure_model():
 
 class HandTracker:
     def __init__(self):
+        # Doc model thanh bytes: MediaPipe (C++) khong mo duoc duong dan co dau
+        # tieng Viet tren Windows (vd "D:\Hiếu\..."), nen khong truyen path
+        with open(ensure_model(), "rb") as f:
+            model_data = f.read()
         options = vision.HandLandmarkerOptions(
-            base_options=BaseOptions(model_asset_path=ensure_model()),
+            base_options=BaseOptions(model_asset_buffer=model_data),
             running_mode=vision.RunningMode.VIDEO,
             num_hands=1,
             min_hand_detection_confidence=0.6,

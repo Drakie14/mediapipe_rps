@@ -3,6 +3,7 @@ Kiem thu thuat toan va logic game ma KHONG can camera.
 Chay: python test_logic.py
 """
 import random
+from collections import Counter
 from types import SimpleNamespace as P
 
 from game import CAPTURE, COUNTDOWN, GAME_OVER, IDLE, RESULT, RPSGame, judge
@@ -112,7 +113,7 @@ def test_win_score_option():
 def test_streak_and_stats():
     # Nguoi luon ra BUA; may: Keo, Keo, Bua, Keo, Bao, Keo
     game = RPSGame(rng=FixedRng([SCISSORS, SCISSORS, ROCK, SCISSORS,
-                                 PAPER, SCISSORS]), win_score=5)
+                                 PAPER, SCISSORS]), win_score=5, odds=None)
     game.start(0.0)
     streaks, t = [], 0.0
     for _ in range(6):
@@ -125,6 +126,16 @@ def test_streak_and_stats():
     assert st["favorite"] == (ROCK, 6)
     assert st["best_streak"] == 3
     assert abs(st["win_rate"] - 4 / 6) < 1e-9
+
+
+def test_player_odds():
+    # May nghieng ve nguoi choi: ~65% thang, ~25% thua, ~10% hoa
+    game = RPSGame(rng=random.Random(1), win_score=5)
+    n = 20000
+    counts = Counter(judge(ROCK, game._computer_choice(ROCK)) for _ in range(n))
+    assert abs(counts[1] / n - 0.65) < 0.02
+    assert abs(counts[-1] / n - 0.25) < 0.02
+    assert abs(counts[0] / n - 0.10) < 0.02
 
 
 if __name__ == "__main__":
